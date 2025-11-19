@@ -13,7 +13,7 @@ class Program
         // F = {1, 0, 0, 1, 0, 1, 1, 0}
         // F = 1 для наборів: (000), (011), (101), (110)
         // F = 0 для наборів: (001), (010), (100), (111)
-        int[] fixedFunctionValues = new int[] { 1, 0, 0, 1, 0, 1, 1, 0 }; 
+        int[] fixedFunctionValues = new int[] { 1, 0, 0, 1, 0, 1, 0, 0 }; 
 
         var dnfparts = new List<string>();
         var cnfparts = new List<string>();

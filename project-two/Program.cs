@@ -57,12 +57,15 @@ class Program
 
         // 1. Різниця A і B (A \ B)
         HashSet<string> differenceAB = new HashSet<string>(A.Except(B));
+        // повертає елементи, які є в A, але відсутні в B.
 
         // 2. Різниця B і C (B \ C)
         HashSet<string> differenceBC = new HashSet<string>(B.Except(C));
+        // елементи, які є в B, але відсутні в C.
 
         // 3. Об'єднання результатів (A \ B) ∪ (B \ C)
         HashSet<string> result = new HashSet<string>(differenceAB.Union(differenceBC));
+        // отримані множини в одну.
 
         Console.WriteLine("\nРезультати:");
         PrintSet("U", U);
