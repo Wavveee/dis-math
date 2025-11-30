@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Numerics; // Для роботи з великими числами (BigInteger)
 
 namespace DiscreteMathProject
 {
@@ -7,7 +8,7 @@ namespace DiscreteMathProject
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.UTF8; // Щоб коректно відображалась кирилиця
+            Console.OutputEncoding = Encoding.UTF8;
 
             while (true)
             {
@@ -29,51 +30,44 @@ namespace DiscreteMathProject
                     case "3": Task3(); break;
                     case "4": Task4(); break;
                     case "0": return;
-                    default: Console.WriteLine("Невірний вибір, спробуйте ще раз."); break;
+                    default: Console.WriteLine("Невірний вибір. Спробуйте ще раз."); break;
                 }
             }
         }
 
-        // --- ЗАВДАННЯ 1: Розклад бінома ---
+        // --- ЗАВДАННЯ 1 ---
         static void Task1()
         {
             Console.WriteLine("\n--- Завдання 1: Розклад (ax + by)^n ---");
             int a = GetInput("Введіть a: ");
             int b = GetInput("Введіть b: ");
-            int n = GetInput("Введіть n (степінь): ");
+            int n = GetInput("Введіть n: ");
 
             StringBuilder polynomial = new StringBuilder();
             Console.WriteLine("\n[Покрокові обчислення]:");
 
-            // Формула: Сума від k=0 до n: C(n, k) * (ax)^(n-k) * (by)^k
             for (int k = 0; k <= n; k++)
             {
                 int powerX = n - k;
                 int powerY = k;
 
-                // 1. Біноміальний коефіцієнт C(n, k)
-                long binomCoeff = BinomialCoefficient(n, k);
-                
-                // 2. Коефіцієнти a і b у відповідних степенях
-                long aPow = (long)Math.Pow(a, powerX);
-                long bPow = (long)Math.Pow(b, powerY);
+                BigInteger binomCoeff = BinomialCoefficient(n, k);
+                BigInteger aPow = BigInteger.Pow(a, powerX);
+                BigInteger bPow = BigInteger.Pow(b, powerY);
+                BigInteger termCoeff = binomCoeff * aPow * bPow;
 
-                // 3. Загальний коефіцієнт члена
-                long termCoeff = binomCoeff * aPow * bPow;
+                // Вивід кроку
+                Console.WriteLine($"k={k}: x^{powerX} y^{powerY} | C({n},{k})={binomCoeff} * {a}^{powerX}(={aPow}) * {b}^{powerY}(={bPow}) = {termCoeff}");
 
-                Console.WriteLine($"k={k}: C({n},{k})={binomCoeff} * {a}^{powerX}={aPow} * {b}^{powerY}={bPow} -> Коеф: {termCoeff}");
-
-                // Формування рядка виводу
                 if (termCoeff >= 0 && k > 0) polynomial.Append(" + ");
                 polynomial.Append($"{termCoeff}");
                 if (powerX > 0) polynomial.Append($"*x^{powerX}");
                 if (powerY > 0) polynomial.Append($"*y^{powerY}");
             }
-
             Console.WriteLine($"\nРЕЗУЛЬТАТ: {polynomial}");
         }
 
-        // --- ЗАВДАННЯ 2: Знайти коефіцієнт біля x^j * y^(n-j) ---
+        // --- ЗАВДАННЯ 2 ---
         static void Task2()
         {
             Console.WriteLine("\n--- Завдання 2: Коефіцієнт біля x^j * y^(n-j) ---");
@@ -83,35 +77,25 @@ namespace DiscreteMathProject
             int j = GetInput("Введіть j (степінь x): ");
 
             int powerY = n - j;
+            if (powerY < 0) { Console.WriteLine("Помилка: j не може бути більше n"); return; }
 
-            if (powerY < 0)
-            {
-                Console.WriteLine("Помилка: j не може бути більше n.");
-                return;
-            }
-
-            Console.WriteLine($"\nШукаємо член з x^{j} * y^{powerY}");
-            Console.WriteLine("[Обчислення]:");
-
-            // Нам потрібен k, де степінь x (n-k) дорівнює j. Отже n-k = j => k = n-j.
-            // Або можна просто взяти C(n, j), оскільки C(n, j) == C(n, n-j).
-            // Формально член це: C(n, n-j) * (ax)^j * (by)^(n-j)
+            Console.WriteLine($"\nШукаємо член для степенів: x^{j} * y^{powerY}");
             
-            long C_n_j = BinomialCoefficient(n, j); 
-            long aPow = (long)Math.Pow(a, j);
-            long bPow = (long)Math.Pow(b, powerY);
+            BigInteger C_n_j = BinomialCoefficient(n, j);
+            BigInteger aPow = BigInteger.Pow(a, j);
+            BigInteger bPow = BigInteger.Pow(b, powerY);
+            BigInteger result = C_n_j * aPow * bPow;
 
-            Console.WriteLine($"1. C({n}, {j}) = {C_n_j}");
-            Console.WriteLine($"2. a^{j} = {a}^{j} = {aPow}");
-            Console.WriteLine($"3. b^{powerY} = {b}^{powerY} = {bPow}");
+            Console.WriteLine("--- Деталі ---");
+            Console.WriteLine($"1. Біноміальний коеф C({n},{j}): {C_n_j}");
+            Console.WriteLine($"2. Частина a: {a}^{j} = {aPow}");
+            Console.WriteLine($"3. Частина b: {b}^{powerY} = {bPow}");
+            Console.WriteLine($"4. Добуток: {C_n_j} * {aPow} * {bPow} = {result}");
             
-            long result = C_n_j * aPow * bPow;
-            Console.WriteLine($"4. Множення: {C_n_j} * {aPow} * {bPow} = {result}");
-
-            Console.WriteLine($"\nРЕЗУЛЬТАТ (Коефіцієнт): {result}");
+            Console.WriteLine($"\nВІДПОВІДЬ: {result}");
         }
 
-        // --- ЗАВДАННЯ 3: Розклад полінома (тринома) ---
+        // --- ЗАВДАННЯ 3 (ОНОВЛЕНО З ДЕТАЛЯМИ) ---
         static void Task3()
         {
             Console.WriteLine("\n--- Завдання 3: Розклад (ax + by + cz)^n ---");
@@ -121,42 +105,53 @@ namespace DiscreteMathProject
             int n = GetInput("Введіть n: ");
 
             StringBuilder polynomial = new StringBuilder();
-            Console.WriteLine("\n[Покрокові обчислення]:");
+            Console.WriteLine("\n[Починаємо перебір степенів i, j, k (сума = n)]");
             
             bool first = true;
+            BigInteger nFact = Factorial(n); // Рахуємо n! один раз, щоб не повторювати
 
-            // Перебір усіх i, j, k таких, що i + j + k = n
-            // Формула члена: (n! / (i!j!k!)) * (ax)^i * (by)^j * (cz)^k
             for (int i = 0; i <= n; i++)
             {
                 for (int j = 0; j <= n - i; j++)
                 {
                     int k = n - i - j;
-
-                    // Мультиноміальний коефіцієнт: n! / (i! j! k!)
-                    long multinomCoeff = Factorial(n) / (Factorial(i) * Factorial(j) * Factorial(k));
                     
-                    long aPow = (long)Math.Pow(a, i);
-                    long bPow = (long)Math.Pow(b, j);
-                    long cPow = (long)Math.Pow(c, k);
+                    Console.WriteLine($"\n--> Комбінація: x^{i}, y^{j}, z^{k}");
 
-                    long termCoeff = multinomCoeff * aPow * bPow * cPow;
+                    // 1. Факторіали
+                    BigInteger iFact = Factorial(i);
+                    BigInteger jFact = Factorial(j);
+                    BigInteger kFact = Factorial(k);
+                    
+                    // 2. Мультиноміальний коефіцієнт P = n! / (i!j!k!)
+                    BigInteger denom = iFact * jFact * kFact;
+                    BigInteger multinomCoeff = nFact / denom;
+                    
+                    Console.Write($"   Мульти-коеф: {n}!/({i}!{j}!{k}!) = {nFact}/{denom} = {multinomCoeff}");
 
-                    Console.WriteLine($"i={i}, j={j}, k={k} -> {n}!/({i}!{j}!{k}!)={multinomCoeff} * {a}^{i}*{b}^{j}*{c}^{k} = {termCoeff}");
+                    // 3. Степені чисел
+                    BigInteger aPow = BigInteger.Pow(a, i);
+                    BigInteger bPow = BigInteger.Pow(b, j);
+                    BigInteger cPow = BigInteger.Pow(c, k);
 
+                    // 4. Фінальний коефіцієнт
+                    BigInteger termCoeff = multinomCoeff * aPow * bPow * cPow;
+                    Console.WriteLine($" | З урахуванням a,b,c: {multinomCoeff} * {a}^{i} * {b}^{j} * {c}^{k} = {termCoeff}");
+
+                    // Додавання до рядка
                     if (!first && termCoeff >= 0) polynomial.Append(" + ");
                     polynomial.Append($"{termCoeff}");
                     if (i > 0) polynomial.Append($"*x^{i}");
                     if (j > 0) polynomial.Append($"*y^{j}");
                     if (k > 0) polynomial.Append($"*z^{k}");
-
+                    
                     first = false;
                 }
             }
-            Console.WriteLine($"\nРЕЗУЛЬТАТ: {polynomial}");
+            Console.WriteLine($"\nРЕЗУЛЬТАТ (ПОЛІНОМ): {polynomial}");
         }
 
-        // --- ЗАВДАННЯ 4: Коефіцієнт біля x^i y^j z^k ---
+        // --- ЗАВДАННЯ 4 (ОНОВЛЕНО З ДЕТАЛЯМИ) ---
         static void Task4()
         {
             Console.WriteLine("\n--- Завдання 4: Коефіцієнт біля x^i * y^j * z^k ---");
@@ -165,58 +160,70 @@ namespace DiscreteMathProject
             int c = GetInput("Введіть c: ");
             int n = GetInput("Введіть n: ");
             
-            Console.WriteLine("Введіть степені i, j, k (сума має дорівнювати n):");
+            Console.WriteLine("Введіть степені для x, y, z:");
             int i = GetInput("i (степінь x): ");
             int j = GetInput("j (степінь y): ");
             int k = GetInput("k (степінь z): ");
 
+            Console.WriteLine("\n--- Етап 1: Перевірка умови ---");
             if (i + j + k != n)
             {
-                Console.WriteLine($"Помилка: i+j+k ({i}+{j}+{k}={i+j+k}) не дорівнює n ({n}). Такого члена не існує в розкладі.");
+                Console.WriteLine($"Помилка! Сума степенів {i}+{j}+{k} = {i + j + k}, а має дорівнювати n={n}.");
+                Console.WriteLine("Такого члена в розкладі не існує (коефіцієнт 0).");
                 return;
             }
+            Console.WriteLine("Умова виконана. Починаємо розрахунок.");
 
-            Console.WriteLine("\n[Обчислення]:");
-            // Формула: (n! / (i!j!k!)) * a^i * b^j * c^k
+            Console.WriteLine("\n--- Етап 2: Факторіали ---");
+            BigInteger nFact = Factorial(n);
+            BigInteger iFact = Factorial(i);
+            BigInteger jFact = Factorial(j);
+            BigInteger kFact = Factorial(k);
 
-            long nFact = Factorial(n);
-            long iFact = Factorial(i);
-            long jFact = Factorial(j);
-            long kFact = Factorial(k);
-            
-            long multiCoeff = nFact / (iFact * jFact * kFact);
-            Console.WriteLine($"1. Мультиноміальний коеф: {n}! / ({i}!*{j}!*{k}!) = {nFact} / ({iFact}*{jFact}*{kFact}) = {multiCoeff}");
+            Console.WriteLine($"n! ({n}!) = {nFact}");
+            Console.WriteLine($"i! ({i}!) = {iFact}");
+            Console.WriteLine($"j! ({j}!) = {jFact}");
+            Console.WriteLine($"k! ({k}!) = {kFact}");
 
-            long aPow = (long)Math.Pow(a, i);
-            long bPow = (long)Math.Pow(b, j);
-            long cPow = (long)Math.Pow(c, k);
-            Console.WriteLine($"2. Параметри: a^{i}={aPow}, b^{j}={bPow}, c^{k}={cPow}");
+            Console.WriteLine("\n--- Етап 3: Мультиноміальний коефіцієнт ---");
+            // Формула з файлу стор. 3: P = n! / (n1! n2! n3!)
+            BigInteger denominator = iFact * jFact * kFact;
+            BigInteger multiCoeff = nFact / denominator;
+            Console.WriteLine($"P = {nFact} / ({iFact} * {jFact} * {kFact})");
+            Console.WriteLine($"P = {nFact} / {denominator} = {multiCoeff}");
 
-            long result = multiCoeff * aPow * bPow * cPow;
-            Console.WriteLine($"3. Фінальне множення: {multiCoeff} * {aPow} * {bPow} * {cPow} = {result}");
+            Console.WriteLine("\n--- Етап 4: Врахування констант a, b, c ---");
+            BigInteger aPow = BigInteger.Pow(a, i);
+            BigInteger bPow = BigInteger.Pow(b, j);
+            BigInteger cPow = BigInteger.Pow(c, k);
+            Console.WriteLine($"a^{i} = {aPow}");
+            Console.WriteLine($"b^{j} = {bPow}");
+            Console.WriteLine($"c^{k} = {cPow}");
 
-            Console.WriteLine($"\nРЕЗУЛЬТАТ (Коефіцієнт): {result}");
+            Console.WriteLine("\n--- Етап 5: Фінальний результат ---");
+            BigInteger result = multiCoeff * aPow * bPow * cPow;
+            Console.WriteLine($"Коефіцієнт = {multiCoeff} * {aPow} * {bPow} * {cPow}");
+            Console.WriteLine($"ВІДПОВІДЬ: {result}");
         }
 
-        // --- ДОПОМІЖНІ ФУНКЦІЇ ---
-
+        // --- Допоміжні функції ---
         static int GetInput(string text)
         {
             Console.Write(text);
-            return int.Parse(Console.ReadLine());
+            string s = Console.ReadLine();
+            if (int.TryParse(s, out int val)) return val;
+            return 0; // Якщо ввели не число
         }
 
-        // Обчислення факторіалу
-        static long Factorial(int num)
+        static BigInteger Factorial(int num)
         {
             if (num <= 1) return 1;
-            long result = 1;
+            BigInteger result = 1;
             for (int i = 2; i <= num; i++) result *= i;
             return result;
         }
 
-        // Обчислення біноміального коефіцієнта C(n, k) = n! / (k! * (n-k)!)
-        static long BinomialCoefficient(int n, int k)
+        static BigInteger BinomialCoefficient(int n, int k)
         {
             if (k < 0 || k > n) return 0;
             return Factorial(n) / (Factorial(k) * Factorial(n - k));
