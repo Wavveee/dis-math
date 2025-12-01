@@ -20,7 +20,7 @@ SKETCH_OPTS = (1.5, 128, 4) # Параметри "малювання від ру
 def get_hardcoded_data():
     return {
         "U": {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
-        "A": {'1', '2', '3', '4', '5', '55'},
+        "A": {'1', '2', '3', '4', '5', '556'},
         "B": {'3', '4', '5', '6', '7'},
         "C": {'5', '6', '7', '8', '9'},
         "formula": r"(A \setminus B) \cup (B \setminus C)"
@@ -107,7 +107,7 @@ def visualize_hybrid(data):
     draw_sketch_circle(ax, cB, radius, 'B', 'outline')
     draw_sketch_circle(ax, cC, radius, 'C', 'outline')
 
-    # --- Plot 2: A \ B (Стиль: Sketch/Layers - виглядає акуратніше) ---
+    # --- Plot 2: A \ B (Стиль: Sketch/Layers) ---
     ax = axes[0, 1]
     setup_ax_style(ax, 'Крок 1: A \\ B')
     
@@ -115,9 +115,10 @@ def visualize_hybrid(data):
     draw_sketch_circle(ax, cA, radius, layer='hatch')
     # 2. Маскуємо B (біла пляма)
     draw_sketch_circle(ax, cB, radius, layer='mask')
-    # 3. Контури зверху
+    # 3. Контури всіх трьох кіл зверху
     draw_sketch_circle(ax, cA, radius, 'A', 'outline')
     draw_sketch_circle(ax, cB, radius, 'B', 'outline')
+    draw_sketch_circle(ax, cC, radius, 'C', 'outline') # <-- Додано коло C
     
     ax.text(0, -1.3, f'Результат: {sorted(list(diff_AB))}', ha='center', 
             bbox=dict(boxstyle='round', facecolor='white', edgecolor=OUTLINE_COLOR))
@@ -130,14 +131,15 @@ def visualize_hybrid(data):
     draw_sketch_circle(ax, cB, radius, layer='hatch')
     # 2. Маскуємо C
     draw_sketch_circle(ax, cC, radius, layer='mask')
-    # 3. Контури
+    # 3. Контури всіх трьох кіл
+    draw_sketch_circle(ax, cA, radius, 'A', 'outline') # <-- Додано коло A
     draw_sketch_circle(ax, cB, radius, 'B', 'outline')
     draw_sketch_circle(ax, cC, radius, 'C', 'outline')
     
     ax.text(0, -1.3, f'Результат: {sorted(list(diff_BC))}', ha='center',
             bbox=dict(boxstyle='round', facecolor='white', edgecolor=OUTLINE_COLOR))
 
-    # --- Plot 4: Фінал (Стиль: Math Grid - бо форма складна) ---
+    # --- Plot 4: Фінал (Стиль: Math Grid) ---
     ax = axes[1, 1]
     setup_ax_style(ax, "Фінал: Об'єднання (Union)")
     
@@ -162,7 +164,7 @@ def visualize_hybrid(data):
     return fig
 
 if __name__ == "__main__":
-    print("🚀 Генерація гібридної візуалізації...")
+    print("🚀 Генерація гібридної візуалізації з усіма колами...")
     
     mpl.rcParams['font.family'] = 'DejaVu Sans'
     mpl.rcParams['hatch.linewidth'] = 2.0 
@@ -176,7 +178,7 @@ if __name__ == "__main__":
     plt.switch_backend('Agg')
     
     fig = visualize_hybrid(data)
-    save_path = OUTPUT_DIR / 'hybrid_venn.png'
+    save_path = OUTPUT_DIR / 'hybrid_venn_all_circles.png'
     fig.savefig(save_path, dpi=150, bbox_inches='tight', facecolor=BG_COLOR)
     
-    print(f"✅ Готово! Збережено як hybrid_venn.png у {save_path}")
+    print(f"✅ Готово! Збережено як hybrid_venn_all_circles.png у {save_path}")
